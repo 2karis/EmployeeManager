@@ -28,7 +28,7 @@ public class EmployeeService {
         return employeeRepo.save(employee);
     }
     public void deleteEmployee(int id){
-        employeeRepo.deleteEmployeebyId(id);
+        employeeRepo.deleteEmployeeById(id);
     }
 
     public Employee findEmployeeById(int id){

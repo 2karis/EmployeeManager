@@ -1,6 +1,8 @@
 package io.siliconsavannah.employeemanager.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -17,9 +19,25 @@ public class Employee implements Serializable {
     private String phone;
     private String imageUrl;
     private String employeeCode;
-    @Column(updatable = false)
+    @CreationTimestamp
     private Timestamp createdAt;
+    @UpdateTimestamp
     private Timestamp updatedAt;
+
+    public Employee() {
+    }
+
+    public Employee(int id, String name, String email, String title, String phone, String imageUrl, String employeeCode, Timestamp createdAt, Timestamp updatedAt) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.title = title;
+        this.phone = phone;
+        this.imageUrl = imageUrl;
+        this.employeeCode = employeeCode;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
 
     public int getId() {
         return id;

@@ -15,12 +15,12 @@ public class EmployeeController {
     @Autowired
     public EmployeeService employeeService;
 
-    @GetMapping("/all")
+    @GetMapping("/read/all")
     public ResponseEntity<List<Employee>> getAllEmployees(){
         return new ResponseEntity<>(employeeService.readAllEmployees(), HttpStatus.OK);
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/read/{id}")
     public ResponseEntity<Employee> getEmployee(@PathVariable("id") int id){
         return new ResponseEntity<>(employeeService.findEmployeeById(id), HttpStatus.OK);
     }

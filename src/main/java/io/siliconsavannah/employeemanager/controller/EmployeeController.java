@@ -10,12 +10,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/employee")
 public class EmployeeController {
     @Autowired
     public EmployeeService employeeService;
 
-    @GetMapping("/read/all")
+    @GetMapping("/readall")
     public ResponseEntity<List<Employee>> getAllEmployees(){
         return new ResponseEntity<>(employeeService.readAllEmployees(), HttpStatus.OK);
     }

@@ -5,12 +5,14 @@ import io.siliconsavannah.employeemanager.model.Employee;
 import io.siliconsavannah.employeemanager.repo.EmployeeRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@Transactional
 public class EmployeeService {
     @Autowired
     private EmployeeRepo employeeRepo;

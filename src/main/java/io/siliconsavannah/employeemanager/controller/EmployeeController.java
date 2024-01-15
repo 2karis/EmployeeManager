@@ -33,7 +33,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Employee>updateEmployee(@RequestBody Employee employee){
+    public ResponseEntity<EmployeeDto>updateEmployee(@RequestBody EmployeeDto employee){
         return new ResponseEntity<>(employeeService.updateEmployee(employee), HttpStatus.CREATED);
     }
 

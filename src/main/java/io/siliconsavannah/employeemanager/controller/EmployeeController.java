@@ -1,5 +1,6 @@
 package io.siliconsavannah.employeemanager.controller;
 
+import io.siliconsavannah.employeemanager.dto.EmployeeDto;
 import io.siliconsavannah.employeemanager.model.Employee;
 import io.siliconsavannah.employeemanager.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +18,12 @@ public class EmployeeController {
     public EmployeeService employeeService;
 
     @GetMapping("/readall")
-    public ResponseEntity<List<Employee>> getAllEmployees(){
+    public ResponseEntity<List<EmployeeDto>> getAllEmployees(){
         return new ResponseEntity<>(employeeService.readAllEmployees(), HttpStatus.OK);
     }
 
     @GetMapping("/read/{id}")
-    public ResponseEntity<Employee> getEmployee(@PathVariable("id") int id){
+    public ResponseEntity<EmployeeDto> getEmployee(@PathVariable("id") int id){
         return new ResponseEntity<>(employeeService.findEmployeeById(id), HttpStatus.OK);
     }
 

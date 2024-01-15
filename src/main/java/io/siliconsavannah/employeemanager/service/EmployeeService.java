@@ -34,11 +34,11 @@ public class EmployeeService {
     public EmployeeDto updateEmployee(EmployeeDto employeeDto){
         Employee employee = employeeRepo.findEmployeeById(employeeDto.id())
                 .orElseThrow(() -> new UserNotFoundException("employee with id "+ employeeDto.id() +" not found"));
-        employee.setName(employeeDto.name());
-        employee.setEmail(employeeDto.email());
-        employee.setTitle(employeeDto.title());
-        employee.setPhone(employeeDto.phone());
-        employee.setImageUrl(employeeDto.imageUrl());
+        if (employeeDto.name()!= null) employee.setName(employeeDto.name());
+        if (employeeDto.email()!= null)employee.setEmail(employeeDto.email());
+        if (employeeDto.title()!= null)employee.setTitle(employeeDto.title());
+        if (employeeDto.phone()!= null)employee.setPhone(employeeDto.phone());
+        if (employeeDto.imageUrl()!= null)employee.setImageUrl(employeeDto.imageUrl());
         return Optional.of(employeeRepo.save(employee)).stream().map(employeeMapper).findFirst().get();
     }
     public void deleteEmployee(int id){

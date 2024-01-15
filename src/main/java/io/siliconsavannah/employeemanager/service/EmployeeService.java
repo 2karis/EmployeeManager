@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -17,7 +18,6 @@ import java.util.stream.Collectors;
 @Transactional
 public class EmployeeService {
     @Autowired
-
     private EmployeeMapper employeeMapper;
     @Autowired
     private EmployeeRepo employeeRepo;
@@ -31,11 +31,15 @@ public class EmployeeService {
         return employeeRepo.findAll().stream().map(employeeMapper).collect(Collectors.toList());
     }
 
-    public Employee updateEmployee(Employee employee){
-//        Employee employee = employeeRepo.findEmployeeById(employeeDto.id())
-//                .orElseThrow(() -> new UserNotFoundException("employee with id "+ employeeDto.id() +" not found"));
-
-        return employeeRepo.save(employee);
+    public EmployeeDto updateEmployee(EmployeeDto employeeDto){
+        Employee employee = employeeRepo.findEmployeeById(employeeDto.id())
+                .orElseThrow(() -> new UserNotFoundException("employee with id "+ employeeDto.id() +" not found"));
+        employee.setName(employeeDto.name());
+        employee.setEmail(employeeDto.email());
+        employee.setTitle(employeeDto.title());
+        employee.setPhone(employeeDto.phone());
+        employee.setImageUrl(employeeDto.imageUrl());
+        return Optional.of(employeeRepo.save(employee)).stream().map(employeeMapper).findFirst().get();
     }
     public void deleteEmployee(int id){
         employeeRepo.deleteEmployeeById(id);

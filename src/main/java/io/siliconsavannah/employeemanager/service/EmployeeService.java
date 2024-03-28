@@ -1,52 +1,64 @@
 package io.siliconsavannah.employeemanager.service;
 
 import io.siliconsavannah.employeemanager.dto.EmployeeDto;
-import io.siliconsavannah.employeemanager.exceptions.UserNotFoundException;
 import io.siliconsavannah.employeemanager.mapper.EmployeeMapper;
 import io.siliconsavannah.employeemanager.model.Employee;
 import io.siliconsavannah.employeemanager.repo.EmployeeRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class EmployeeService {
-    @Autowired
-    private EmployeeMapper employeeMapper;
+
     @Autowired
     private EmployeeRepo employeeRepo;
 
-    public Employee createEmployee(Employee employee){
-        employee.setEmployeeCode(UUID.randomUUID().toString());
-        return employeeRepo.save(employee);
+    public Mono<EmployeeDto> createEmployee(Mono<EmployeeDto> employeeDto){
+
+        return employeeDto
+                .map(EmployeeMapper.mapper::dtoToEntity)
+                .map(employeeRepo::save)
+                .map(EmployeeMapper.mapper::entityToDto)
+                .subscribeOn(Schedulers.boundedElastic());
+    }
+    public Flux<EmployeeDto> readAllEmployees(){
+        return Flux.fromStream(()->employeeRepo.findAll().stream())
+                .map(EmployeeMapper.mapper::entityToDto)
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
-    public List<EmployeeDto> readAllEmployees(){
-        return employeeRepo.findAll().stream().map(employeeMapper).collect(Collectors.toList());
+    public Mono<EmployeeDto> updateEmployee(Mono<EmployeeDto> employeeDto){
+        return employeeDto
+                .map(dto->{
+                    Employee entity = employeeRepo.findEmployeeById(dto.id()).get();
+                    if (dto.name()!= null) entity.setName(dto.name());
+                    if (dto.email()!= null)entity.setEmail(dto.email());
+                    if (dto.title()!= null)entity.setTitle(dto.title());
+                    if (dto.phone()!= null)entity.setPhone(dto.phone());
+                    if (dto.imageUrl()!= null)entity.setImageUrl(dto.imageUrl());
+                    return employeeRepo.save(entity);
+                })
+                .map(EmployeeMapper.mapper::entityToDto)
+                .subscribeOn(Schedulers.boundedElastic());
+    }
+    public Mono<Void> deleteEmployee(int id){
+        return Mono.fromRunnable(()->{employeeRepo.deleteEmployeeById(id) ;})
+                .then()
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
-    public EmployeeDto updateEmployee(EmployeeDto employeeDto){
-        Employee employee = employeeRepo.findEmployeeById(employeeDto.id())
-                .orElseThrow(() -> new UserNotFoundException("employee with id "+ employeeDto.id() +" not found"));
-        if (employeeDto.name()!= null) employee.setName(employeeDto.name());
-        if (employeeDto.email()!= null)employee.setEmail(employeeDto.email());
-        if (employeeDto.title()!= null)employee.setTitle(employeeDto.title());
-        if (employeeDto.phone()!= null)employee.setPhone(employeeDto.phone());
-        if (employeeDto.imageUrl()!= null)employee.setImageUrl(employeeDto.imageUrl());
-        return Optional.of(employeeRepo.save(employee)).stream().map(employeeMapper).findFirst().get();
-    }
-    public void deleteEmployee(int id){
-        employeeRepo.deleteEmployeeById(id);
-    }
-
-    public EmployeeDto findEmployeeById(int id){
-        return employeeRepo.findEmployeeById(id).stream().map(employeeMapper).findAny()
-                .orElseThrow(() -> new UserNotFoundException("employee with id "+ id +" not found"));
+    public Mono<EmployeeDto> findEmployeeById(int id){
+        return Mono.fromSupplier(()->employeeRepo.findById(id))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(EmployeeMapper.mapper::entityToDto)
+                .subscribeOn(Schedulers.boundedElastic());
     }
 }

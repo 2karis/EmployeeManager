@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -18,28 +20,34 @@ public class EmployeeController {
     public EmployeeService employeeService;
 
     @GetMapping("/readall")
-    public ResponseEntity<List<EmployeeDto>> getAllEmployees(){
-        return new ResponseEntity<>(employeeService.readAllEmployees(), HttpStatus.OK);
+    public Flux<EmployeeDto> getAllEmployees(){
+        return employeeService.readAllEmployees();
     }
 
+
     @GetMapping("/read/{id}")
-    public ResponseEntity<EmployeeDto> getEmployee(@PathVariable("id") int id){
-        return new ResponseEntity<>(employeeService.findEmployeeById(id), HttpStatus.OK);
+    public Mono<ResponseEntity<EmployeeDto>> getEmployee(@PathVariable("id") int id){
+        return employeeService.findEmployeeById(id)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.badRequest().build());
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee){
-        return new ResponseEntity<>(employeeService.createEmployee(employee), HttpStatus.CREATED);
+    public Mono<ResponseEntity<EmployeeDto>> createEmployee(@RequestBody Mono<EmployeeDto> employeeDto){
+        return employeeService.createEmployee(employeeDto)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.badRequest().build());
     }
 
     @PutMapping("/update")
-    public ResponseEntity<EmployeeDto>updateEmployee(@RequestBody EmployeeDto employee){
-        return new ResponseEntity<>(employeeService.updateEmployee(employee), HttpStatus.CREATED);
+    public Mono<ResponseEntity<EmployeeDto>> updateEmployee(@RequestBody Mono<EmployeeDto> employeeDto){
+        return employeeService.updateEmployee(employeeDto)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.badRequest().build());
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteEmployee(@PathVariable("id") int id){
-        employeeService.deleteEmployee(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public Mono<Void> deleteEmployee(@PathVariable("id") int id){
+        return employeeService.deleteEmployee(id);
     }
 }
